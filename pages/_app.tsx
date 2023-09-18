@@ -1,8 +1,12 @@
 import "../styles/globals.css";
+import type { AppProps } from "next/app";
+import Layout from "../components/Layout";
 
-function MyApp() {
+function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <div></div>
+    <Layout>
+      <Component {...pageProps} />
+    </Layout>
   );
 }
 
