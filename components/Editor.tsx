@@ -1,20 +1,29 @@
+import { forwardRef } from "react";
+import dynamic from "next/dynamic";
 import { Editor } from "@toast-ui/react-editor";
-import '@toast-ui/editor/dist/toastui-editor.css';
+import { EditorWithForwardedProps } from "./WrappingEditor";
+import codeSyntaxHighlight from "@toast-ui/editor-plugin-code-syntax-highlight";
+import Prism from "prismjs";
 
-const PostEditor = () => {
-    return <Editor 
-    initialEditType="markdown"
-    useCommandShortcut={false}
-    autofocus={false}
-    toolbarItems={[
-        // 툴바 옵션 설정
-        ['heading', 'bold', 'italic', 'strike'],
-        ['hr', 'quote'],
-        ['ul', 'ol', 'task', 'indent', 'outdent'],
-        ['table', 'link'],
-        ['code', 'codeblock'],
-      ]}
-  />
-}
+const ImportEditor = dynamic<EditorWithForwardedProps>(
+  () => import("./WrappingEditor"),
+  {
+    ssr: false,
+  }
+);
+
+const PostEditor = forwardRef<Editor, EditorWithForwardedProps>(
+  (props, ref) => {
+    return (
+      <ImportEditor
+        {...props}
+        plugins={[[codeSyntaxHighlight, { highlighter: Prism }]]}
+        forwardedRef={ref as React.MutableRefObject<Editor>}
+      />
+    );
+  }
+);
+
+PostEditor.displayName = "editor";
 
 export default PostEditor;

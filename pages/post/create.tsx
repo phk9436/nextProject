@@ -1,15 +1,17 @@
 import { NextPage } from "next";
-import React, { useEffect, useRef, useState } from "react";
-import dynamic from "next/dynamic";
-const PostEditor = dynamic(() => import("../../components/Editor"), {
-    ssr: false
-})
+import React, { useEffect, useState, useRef } from "react";
+import PostEditor from "../../components/Editor";
+import { Editor } from "@toast-ui/react-editor";
+import { addDoc, collection } from "firebase/firestore";
+import { dbService } from "../api/firebase";
+import { useRouter } from "next/router";
+import dayjs from "dayjs";
 
 const Create: NextPage = () => {
-  const [postData, setPostData] = useState({});
   const [title, setTitle] = useState("");
   const [password, setPassword] = useState("");
-  const contentRef = useRef();
+  const contentRef = useRef<Editor>();
+  const router = useRouter();
 
   const changeTitle = (e: React.ChangeEvent<HTMLInputElement>) =>
     setTitle(e.target.value);
@@ -17,25 +19,57 @@ const Create: NextPage = () => {
   const changePassword = (e: React.ChangeEvent<HTMLInputElement>) =>
     setPassword(e.target.value);
 
-  const submitPost = (e: React.FormEvent<HTMLFormElement>) => {
+  const submitPost = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setPostData({ title, password });
-  };
+    const createdAt = dayjs(new Date()).format("YYMMDDHHmmss");
+    const text = contentRef.current?.getInstance().getMarkdown();
 
-  useEffect(() => {
-    console.log(postData);
-  }, [postData]);
+    const context = {
+      title,
+      password,
+      content: text,
+      createdAt,
+    };
+    if (context.title && context.password && context.content) {
+      await addDoc(collection(dbService, "free"), context);
+      setTitle("");
+      setPassword("");
+      alert("게시글이 작성되었습니다");
+      router.push("/");
+    } else {
+      alert("항목이 모두 작성되지 않았습니다");
+    }
+  };
 
   return (
     <div>
+      <h1>자유게시판 글쓰기</h1>
       <form action="" onSubmit={submitPost}>
         <ul>
           <li key="input1">
             제목: <input type="text" value={title} onChange={changeTitle} />
           </li>
-          <li key="input2">내용: <PostEditor /></li>
+          <li key="input2">
+            내용:
+            <div style={{ maxWidth: "500px" }}>
+              <PostEditor
+                initialEditType="wysiwyg"
+                useCommandShortcut={false}
+                autofocus={false}
+                toolbarItems={[
+                  // 툴바 옵션 설정
+                  ["heading", "bold", "italic", "strike"],
+                  ["hr", "quote"],
+                  ["task", "indent", "outdent"],
+                  ["table", "link"],
+                  ["code", "codeblock"],
+                ]}
+                ref={contentRef as React.MutableRefObject<Editor>}
+              />
+            </div>
+          </li>
           <li key="input3">
-            비밀번호:{" "}
+            비밀번호:
             <input type="text" value={password} onChange={changePassword} />
           </li>
         </ul>
