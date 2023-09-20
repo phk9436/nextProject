@@ -12,6 +12,13 @@ const Home: NextPage = () => {
             </a>
           </Link>
         </li>
+        <li>
+          <Link href={"/post/list"}>
+            <a>
+              <h4>자유게시글 리스트 보기</h4>
+            </a>
+          </Link>
+        </li>
       </ul>
     </div>
   );
