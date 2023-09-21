@@ -5,7 +5,7 @@ export interface EditorWithForwardedProps extends EditorProps {
   forwardedRef?: React.MutableRefObject<Editor>;
 }
 
-const PostEditor = (props: EditorWithForwardedProps) => {
+const WrappingEditor = (props: EditorWithForwardedProps) => {
   return (
     <Editor
       ref={props.forwardedRef}
@@ -14,6 +14,6 @@ const PostEditor = (props: EditorWithForwardedProps) => {
   );
 };
 
-PostEditor.propTypes = {};
+WrappingEditor.propTypes = {};
 
-export default PostEditor;
+export default WrappingEditor;

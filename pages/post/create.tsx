@@ -22,12 +22,12 @@ const Create: NextPage = () => {
   const submitPost = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const createdAt = dayjs(new Date()).format("YYMMDDHHmmss");
-    const text = contentRef.current?.getInstance().getMarkdown();
+    const content = contentRef.current?.getInstance().getMarkdown();
 
     const context = {
       title,
       password,
-      content: text,
+      content,
       createdAt,
     };
     if (context.title && context.password && context.content) {
