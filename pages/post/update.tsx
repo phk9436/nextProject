@@ -1,49 +1,32 @@
-import { NextPage } from "next";
-import React, { useState, useRef } from "react";
-import PostEditor from "../../components/Editor";
-import { Editor } from "@toast-ui/react-editor";
-import { addDoc, collection } from "firebase/firestore";
-import { dbService } from "../api/firebase";
+import { useRef, useState } from "react";
 import { useRouter } from "next/router";
-import dayjs from "dayjs";
+import PostEditor from "../../components/Editor";
+import { doc, updateDoc } from "firebase/firestore";
+import { dbService } from "../api/firebase";
+import { Editor } from "@toast-ui/react-editor";
 
-const Create: NextPage = () => {
-  const [title, setTitle] = useState("");
-  const [password, setPassword] = useState("");
-  const contentRef = useRef<Editor>();
+const Update = () => {
   const router = useRouter();
+  const [title, setTitle] = useState(router.query.title);
+  const contentRef = useRef<Editor>();
 
   const changeTitle = (e: React.ChangeEvent<HTMLInputElement>) =>
     setTitle(e.target.value);
 
-  const changePassword = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setPassword(e.target.value);
-
   const submitPost = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const createdAt = dayjs(new Date()).format("YYMMDDHHmmss");
     const content = contentRef.current?.getInstance().getMarkdown();
-
-    const context = {
+    await updateDoc(doc(dbService, "free", `${router.query.id}`), {
       title,
-      password,
       content,
-      createdAt,
-    };
-    if (context.title && context.password && context.content) {
-      await addDoc(collection(dbService, "free"), context);
-      setTitle("");
-      setPassword("");
-      alert("게시글이 작성되었습니다");
-      router.push("/");
-    } else {
-      alert("항목이 모두 작성되지 않았습니다");
-    }
+    });
+    alert("수정 완료됐습니다");
+    router.push(`/post/list/${router.query.id}`)
   };
 
   return (
     <div>
-      <h1>자유게시판 글쓰기</h1>
+      <h1>수정하기페이지</h1>
       <form action="" onSubmit={submitPost}>
         <ul>
           <li key="input1">
@@ -53,6 +36,7 @@ const Create: NextPage = () => {
             내용:
             <div style={{ maxWidth: "500px" }}>
               <PostEditor
+                initialValue={router.query.content as string}
                 initialEditType="wysiwyg"
                 useCommandShortcut={false}
                 autofocus={false}
@@ -68,15 +52,11 @@ const Create: NextPage = () => {
               />
             </div>
           </li>
-          <li key="input3">
-            비밀번호:
-            <input type="text" value={password} onChange={changePassword} />
-          </li>
+          <button>수정완료</button>
         </ul>
-        <button>작성하기</button>
       </form>
     </div>
   );
 };
 
-export default Create;
+export default Update;

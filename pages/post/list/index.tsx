@@ -33,7 +33,7 @@ const PostList: NextPage = () => {
       <ul>
         {postList.length ? postList.map((e:PostData) => (
             <li key={e.id}>
-                <Link href={`/post/list/${e.id}`}><a>{e.title}</a></Link></li>
+                <Link href={`/post/list/${e.id}`}><a><h2>{e.title}</h2></a></Link></li>
         )) : "게시글이 없습니다..."}
       </ul>
     </div>
