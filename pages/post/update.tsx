@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import PostEditor from "../../components/Editor";
 import { doc, updateDoc } from "firebase/firestore";
@@ -16,13 +16,21 @@ const Update = () => {
   const submitPost = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const content = contentRef.current?.getInstance().getMarkdown();
+    if (!content || !title) {
+      alert("항목이 모두 채워지지 않았습니다");
+      return;
+    }
     await updateDoc(doc(dbService, "free", `${router.query.id}`), {
       title,
       content,
     });
     alert("수정 완료됐습니다");
-    router.push(`/post/list/${router.query.id}`)
+    router.push(`/post/list/${router.query.id}`);
   };
+
+  useEffect(() => {
+    !router.query.id && router.push("/");
+  }, []);
 
   return (
     <div>

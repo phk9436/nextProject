@@ -1,7 +1,13 @@
 import { NextPage } from "next";
 import { PostData } from ".";
 import { useState, useEffect } from "react";
-import { getDoc, doc, deleteDoc } from "firebase/firestore";
+import {
+  getDoc,
+  doc,
+  deleteDoc,
+  updateDoc,
+  increment,
+} from "firebase/firestore";
 import { dbService } from "../../api/firebase";
 import { useRouter } from "next/router";
 import { Viewer } from "@toast-ui/react-editor";
@@ -23,6 +29,9 @@ const PostDetail: NextPage = () => {
       return;
     }
     await deleteDoc(doc(dbService, "free", `${router.query.id}`));
+    await updateDoc(doc(dbService, "meta", "boardCount"), {
+      total: increment(-1),
+    });
     alert("게시물이 삭제되었습니다");
     router.push("/post/list");
   };

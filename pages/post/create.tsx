@@ -2,7 +2,19 @@ import { NextPage } from "next";
 import React, { useState, useRef } from "react";
 import PostEditor from "../../components/Editor";
 import { Editor } from "@toast-ui/react-editor";
-import { addDoc, collection } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  increment,
+  updateDoc,
+  query,
+  limit,
+  orderBy,
+  startAfter,
+  setDoc
+} from "firebase/firestore";
 import { dbService } from "../api/firebase";
 import { useRouter } from "next/router";
 import dayjs from "dayjs";
@@ -32,6 +44,17 @@ const Create: NextPage = () => {
     };
     if (context.title && context.password && context.content) {
       await addDoc(collection(dbService, "free"), context);
+      await updateDoc(doc(dbService, "meta", "boardCount"), { //전체 게시물 개수
+        total: increment(1),
+      });
+      const queryList = query(//start:10번째 데이터값 임시로 넣기(페이지네이션)
+        collection(dbService, "free"),
+        limit(10),
+        orderBy("createdAt")
+      );
+      const data = await getDocs(queryList);
+      const dataJson = JSON.stringify(data.docs[data.docs.length - 1]);
+      await setDoc(doc(dbService, "meta", "page2"), { data: dataJson });//end:10번째 데이터값 임시로 넣기(페이지네이션)
       setTitle("");
       setPassword("");
       alert("게시글이 작성되었습니다");
