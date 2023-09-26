@@ -6,7 +6,6 @@ import {
   getDocs,
   getDoc,
   doc,
-  startAt,
   startAfter
 } from "firebase/firestore";
 import type { NextPage } from "next";
@@ -25,16 +24,14 @@ export interface PostData {
 const PostList: NextPage = () => {
   const [postList, setPostList] = useState<PostData[]>([]);
   const [totalNum, setTotalNum] = useState(0);
-  const [pageNum, setPageNum] = useState(0);
+  const [totalPageNum, setTotalPageNum] = useState(0);
+  const [currentPageNum, setCurrentPageNum] = useState(1);
   const getPosts = async () => {
     setPostList([]);
-    const pageData = await getDoc(doc(dbService, "meta", "page2"));
-    const pageValue = JSON.parse(pageData.data()?.data);
     const queryList = query(
       collection(dbService, "free"),
       limit(10),
-      orderBy("createdAt"),
-      startAfter(pageValue) //11번째 게시물부터 보기 임시
+      orderBy("createdAt")
     );
     const data = await getDocs(queryList);
     data.forEach((docs) => {
@@ -43,15 +40,7 @@ const PostList: NextPage = () => {
     });
     const total = await getDoc(doc(dbService, "meta", "boardCount"));
     setTotalNum(total.data()?.total);
-  };
-
-  const renderPagination = () => {
-    const totalPage = Math.ceil(totalNum / 10);
-    const rederArr = [];
-    for (let i = 1; i <= totalPage; i++) {
-      rederArr.push(i);
-    }
-    return rederArr;
+    setTotalPageNum(Math.ceil(total.data()?.total/10));
   };
 
   useEffect(() => {
@@ -73,25 +62,9 @@ const PostList: NextPage = () => {
             ))
           : "게시글이 없습니다..."}
       </ul>
-      <ul style={{ marginTop: "40px", display: "flex", gap: "10px" }}>
-        {renderPagination().map((e) => (
-          <li
-            key={`page${e}`}
-            style={{
-              backgroundColor: "#eee",
-              borderRadius: "50%",
-              width: "20px",
-              height: "20px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              cursor: "pointer",
-            }}
-          >
-            {e}
-          </li>
-        ))}
-      </ul>
+      <p>현재 페이지 {currentPageNum}/{totalPageNum}</p>
+      <button type="button">prev</button>
+      <button type="button">next</button>
     </div>
   );
 };
