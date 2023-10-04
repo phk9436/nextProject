@@ -22,6 +22,7 @@ export interface PostData {
   password: string;
   id: string;
   createdAt: number;
+  view: number;
 }
 
 const PostList: NextPage = () => {

@@ -35,6 +35,7 @@ const Create: NextPage = () => {
       password,
       content,
       createdAt,
+      view: 0
     };
     if (context.title && context.password && context.content) {
       await addDoc(collection(dbService, "free"), context);

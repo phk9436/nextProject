@@ -18,7 +18,13 @@ const PostDetail: NextPage = () => {
 
   const getPost = async () => {
     const data = await getDoc(doc(dbService, "free", `${router.query.id}`));
-    if (!data.data()) router.push("/post/list");
+    if (!data.data()) {
+      router.push("/post/list");
+      return;
+    }
+    await updateDoc(doc(dbService, "free", `${router.query.id}`), {
+      view: increment(1),
+    });
     const dataObj = { ...data.data(), id: router.query.id } as PostData;
     setPostData(dataObj);
   };
@@ -62,6 +68,7 @@ const PostDetail: NextPage = () => {
     <div>
       <h1>{postData?.title}</h1>
       <h4>작성일: {postData && `${postData.createdAt}`.slice(0, 6)}</h4>
+      <h4>조회수: {postData ? postData.view + 1 : 0}</h4>
       <div>{postData && <Viewer initialValue={postData?.content} />}</div>
       <button type="button" onClick={deletePost}>
         삭제하기
