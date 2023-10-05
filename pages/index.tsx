@@ -19,6 +19,13 @@ const Home: NextPage = () => {
             </a>
           </Link>
         </li>
+        <li>
+          <Link href={"/login"}>
+            <a>
+              <h4>어드민 로그인하기</h4>
+            </a>
+          </Link>
+        </li>
       </ul>
     </div>
   );
