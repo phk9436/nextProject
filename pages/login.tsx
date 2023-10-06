@@ -29,7 +29,7 @@ const Login: NextPage = () => {
       router.push("/");
     }
   }, []);
-  
+
   return (
     <div>
       <h1>로그인하기</h1>

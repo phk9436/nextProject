@@ -7,6 +7,7 @@ import { Editor } from "@toast-ui/react-editor";
 
 const Update = () => {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState(router.query.title);
   const contentRef = useRef<Editor>();
 
@@ -18,6 +19,7 @@ const Update = () => {
     const content = contentRef.current?.getInstance().getMarkdown();
     if (!content || !title) {
       alert("항목이 모두 채워지지 않았습니다");
+      setLoading(false);
       return;
     }
     await updateDoc(doc(dbService, "free", `${router.query.id}`), {
@@ -26,6 +28,7 @@ const Update = () => {
     });
     alert("수정 완료됐습니다");
     router.push(`/post/list/${router.query.id}`);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -60,7 +63,7 @@ const Update = () => {
               />
             </div>
           </li>
-          <button>수정완료</button>
+          {!loading ? <button>수정완료</button> : "업로드중..."}
         </ul>
       </form>
     </div>

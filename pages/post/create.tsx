@@ -14,6 +14,7 @@ import { useRouter } from "next/router";
 import dayjs from "dayjs";
 
 const Create: NextPage = () => {
+  const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [password, setPassword] = useState("");
   const contentRef = useRef<Editor>();
@@ -27,6 +28,7 @@ const Create: NextPage = () => {
 
   const submitPost = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
     const createdAt = dayjs(new Date()).format("YYMMDDHHmmss");
     const content = contentRef.current?.getInstance().getMarkdown();
 
@@ -35,7 +37,7 @@ const Create: NextPage = () => {
       password,
       content,
       createdAt,
-      view: 0
+      view: 0,
     };
     if (context.title && context.password && context.content) {
       await addDoc(collection(dbService, "free"), context);
@@ -50,6 +52,7 @@ const Create: NextPage = () => {
     } else {
       alert("항목이 모두 작성되지 않았습니다");
     }
+    setLoading(false);
   };
 
   return (
@@ -84,7 +87,7 @@ const Create: NextPage = () => {
             <input type="text" value={password} onChange={changePassword} />
           </li>
         </ul>
-        <button>작성하기</button>
+        {!loading ? <button>작성하기</button> : "업로드중..."}
       </form>
     </div>
   );
