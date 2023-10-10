@@ -30,10 +30,13 @@ const PostDetail: NextPage = () => {
   };
 
   const deletePost = async () => {
-    if (prompt("비밀번호를 입력해주세요") !== postData?.password) {
-      alert("비밀번호가 다릅니다.");
-      return;
+    if (!sessionStorage.getItem("admin")) {
+      if (prompt("비밀번호를 입력해주세요") !== postData?.password) {
+        alert("비밀번호가 다릅니다.");
+        return;
+      }
     }
+
     await deleteDoc(doc(dbService, "free", `${router.query.id}`));
     await updateDoc(doc(dbService, "meta", "boardCount"), {
       total: increment(-1),
