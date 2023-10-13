@@ -26,6 +26,13 @@ const Home: NextPage = () => {
             </a>
           </Link>
         </li>
+        <li>
+          <Link href={"/notice/create"}>
+            <a>
+              <h4>공지사항 작성하기</h4>
+            </a>
+          </Link>
+        </li>
       </ul>
     </div>
   );
