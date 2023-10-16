@@ -32,6 +32,12 @@ const Home: NextPage = () => {
               <h4>공지사항 작성하기</h4>
             </a>
           </Link>
+        </li><li>
+          <Link href={"/notice/list"}>
+            <a>
+              <h4>공지사항 리스트 보기</h4>
+            </a>
+          </Link>
         </li>
       </ul>
     </div>
