@@ -1,6 +1,5 @@
 import { NextPage } from "next";
 import React, { useState, useRef } from "react";
-import PostEditor from "../../components/Editor";
 import { Editor } from "@toast-ui/react-editor";
 import {
   addDoc,
@@ -12,6 +11,7 @@ import {
 import { dbService } from "../api/firebase";
 import { useRouter } from "next/router";
 import dayjs from "dayjs";
+import PostEditor from "../../components/Editor";
 
 const Create: NextPage = () => {
   const [loading, setLoading] = useState(false);

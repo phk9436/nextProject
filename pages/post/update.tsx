@@ -1,9 +1,9 @@
 import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import PostEditor from "../../components/Editor";
 import { doc, updateDoc } from "firebase/firestore";
 import { dbService } from "../api/firebase";
 import { Editor } from "@toast-ui/react-editor";
+import PostEditor from "../../components/Editor";
 
 const Update = () => {
   const router = useRouter();

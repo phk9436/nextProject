@@ -13,6 +13,9 @@
   },
   "dependencies": {
     "@react-query-firebase/firestore": "^1.0.0-dev.7",
+    "@tiptap/core": "^2.0.0-beta.195",
+    "@tiptap/react": "^2.0.0-beta.195",
+    "@tiptap/starter-kit": "^2.0.0-beta.195",
     "@toast-ui/editor-plugin-code-syntax-highlight": "^3.1.0",
     "@toast-ui/editor-plugin-color-syntax": "^3.1.0",
     "@toast-ui/react-editor": "^3.1.7",
@@ -36,6 +39,5 @@
     "eslint": "8.23.1",
     "eslint-config-next": "12.3.0",
     "typescript": "4.8.3"
-  },
-  "homepage": "https://phk9436.github.io/bilerplate"
+  }
 }

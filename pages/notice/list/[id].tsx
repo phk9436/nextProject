@@ -10,14 +10,18 @@ import {
 } from "firebase/firestore";
 import { dbService, storageService } from "../../api/firebase";
 import { useRouter } from "next/router";
-import { Viewer } from "@toast-ui/react-editor";
 import { deleteObject, ref } from "firebase/storage";
+import dynamic from "next/dynamic";
 
 interface NoticeData extends PostData {
   fileData: string;
   fileName: string;
   fileId: string;
 }
+
+const PostViewer = dynamic(() => import("../../../components/Viewer"), {
+  ssr: false,
+});
 
 const PostDetail: NextPage = () => {
   const [postData, setPostData] = useState<NoticeData>();
@@ -66,7 +70,7 @@ const PostDetail: NextPage = () => {
           content: postData?.content,
           id: postData?.id,
           fileName: postData?.fileName,
-          fileId: postData?.fileId
+          fileId: postData?.fileId,
         },
       },
       "notice/update"
@@ -92,7 +96,7 @@ const PostDetail: NextPage = () => {
           "파일이 없습니다"
         )}
       </h4>
-      <div>{postData && <Viewer initialValue={postData?.content} />}</div>
+      <div>{postData && <PostViewer content={postData?.content} />}</div>
       <button type="button" onClick={deletePost}>
         삭제하기
       </button>

@@ -10,7 +10,11 @@ import {
 } from "firebase/firestore";
 import { dbService } from "../../api/firebase";
 import { useRouter } from "next/router";
-import { Viewer } from "@toast-ui/react-editor";
+import dynamic from "next/dynamic";
+
+const PostViewer = dynamic(() => import("../../../components/Viewer"), {
+  ssr: false,
+});
 
 const PostDetail: NextPage = () => {
   const [postData, setPostData] = useState<PostData>();
@@ -72,7 +76,7 @@ const PostDetail: NextPage = () => {
       <h1>{postData?.title}</h1>
       <h4>작성일: {postData && `${postData.createdAt}`.slice(0, 6)}</h4>
       <h4>조회수: {postData ? postData.view + 1 : 0}</h4>
-      <div>{postData && <Viewer initialValue={postData?.content} />}</div>
+      <div>{postData && <PostViewer content={postData?.content} />}</div>
       <button type="button" onClick={deletePost}>
         삭제하기
       </button>
