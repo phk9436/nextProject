@@ -17,6 +17,7 @@ interface NoticeData extends PostData {
   fileData: string;
   fileName: string;
   fileId: string;
+  youtubeData: string;
 }
 
 const PostViewer = dynamic(() => import("../../../components/Viewer"), {
@@ -71,6 +72,7 @@ const PostDetail: NextPage = () => {
           id: postData?.id,
           fileName: postData?.fileName,
           fileId: postData?.fileId,
+          youtubeData: postData?.youtubeData,
         },
       },
       "notice/update"
@@ -96,7 +98,21 @@ const PostDetail: NextPage = () => {
           "파일이 없습니다"
         )}
       </h4>
-      <div>{postData && <PostViewer content={postData?.content} />}</div>
+      {postData?.youtubeData && (
+        <div style={{ width: "500px", height: "300px" }}>
+          <iframe
+            width="100%"
+            height="100%"
+            src={postData.youtubeData}
+            title="YouTube video player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </div>
+      )}
+
+      <div>{postData && <PostViewer content={postData.content} />}</div>
       <button type="button" onClick={deletePost}>
         삭제하기
       </button>

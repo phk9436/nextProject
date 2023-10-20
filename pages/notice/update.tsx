@@ -4,7 +4,12 @@ import { doc, updateDoc } from "firebase/firestore";
 import { dbService, storageService } from "../api/firebase";
 import { Editor } from "@toast-ui/react-editor";
 import { v4 } from "uuid";
-import { deleteObject, getDownloadURL, ref, uploadString } from "firebase/storage";
+import {
+  deleteObject,
+  getDownloadURL,
+  ref,
+  uploadString,
+} from "firebase/storage";
 import PostEditor from "../../components/Editor";
 
 const Update = () => {
@@ -14,12 +19,17 @@ const Update = () => {
   const [fileChange, setFileChange] = useState(false);
   const [fileName, setFileName] = useState("");
   const [fileUrl, setFileUrl] = useState("");
+  const [youtubeUrl, setYoutubeUrl] = useState("");
   const contentRef = useRef<Editor>();
 
   const changeTitle = (e: React.ChangeEvent<HTMLInputElement>) =>
     setTitle(e.target.value);
 
   const changeFile = () => setFileChange(true);
+
+  const onChangeYoutubeUrl = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setYoutubeUrl(e.target.value);
+  };
 
   const uploadFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = e.target;
@@ -42,7 +52,7 @@ const Update = () => {
       setLoading(false);
       return;
     }
-    if(fileChange && !fileUrl) {
+    if (fileChange && !fileUrl) {
       alert("파일을 등록해주세요");
       setLoading(false);
       return;
@@ -50,13 +60,23 @@ const Update = () => {
     let context;
     let fileData = "";
     let fileId = "";
+
+    let youtubeData = "";
+    if (youtubeUrl) {
+      youtubeData = youtubeUrl.replace("youtu.be/", "www.youtube.com/embed/");
+    }
+
     if (!fileUrl) {
       context = {
         title,
         content,
+        youtubeData,
       };
     } else {
-      const deleteFileRef = ref(storageService, `notice/${router.query.fileId}`);
+      const deleteFileRef = ref(
+        storageService,
+        `notice/${router.query.fileId}`
+      );
       await deleteObject(deleteFileRef);
 
       const fileV4Id = v4();
@@ -64,13 +84,14 @@ const Update = () => {
       const data = await uploadString(fileRef, fileUrl, "data_url");
       fileData = await getDownloadURL(data.ref);
       fileId = fileV4Id;
-     
+
       context = {
         title,
         content,
         fileData,
         fileId,
         fileName,
+        youtubeData,
       };
     }
     await updateDoc(doc(dbService, "notice", `${router.query.id}`), context);
@@ -81,6 +102,8 @@ const Update = () => {
 
   useEffect(() => {
     !router.query.id && router.push("/");
+    router.query.youtubeData &&
+      setYoutubeUrl(router.query.youtubeData as string);
   }, []);
 
   return (
@@ -119,6 +142,14 @@ const Update = () => {
                 ref={contentRef as React.MutableRefObject<Editor>}
               />
             </div>
+          </li>
+          <li key="input4">
+            유튜브url:
+            <input
+              type="text"
+              value={youtubeUrl}
+              onChange={onChangeYoutubeUrl}
+            />
           </li>
           {!loading ? <button>수정완료</button> : "업로드중..."}
         </ul>

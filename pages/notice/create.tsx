@@ -20,6 +20,7 @@ const Create: NextPage = () => {
   const [title, setTitle] = useState("");
   const [fileUrl, setFileUrl] = useState("");
   const [fileName, setFileName] = useState("");
+  const [youtubeUrl, setYoutubeUrl] = useState("");
   const contentRef = useRef<Editor>();
   const router = useRouter();
 
@@ -38,6 +39,10 @@ const Create: NextPage = () => {
     reader.onloadend = () => setFileUrl(reader.result as string);
   };
 
+  const onChangeYoutubeUrl = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setYoutubeUrl(e.target.value);
+  };
+
   const submitPost = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -54,6 +59,11 @@ const Create: NextPage = () => {
       fileId = fileV4Id;
     }
 
+    let youtubeData = "";
+    if (youtubeUrl) {
+      youtubeData = youtubeUrl.replace("youtu.be/", "www.youtube.com/embed/");
+    }
+
     const context = {
       title,
       content,
@@ -62,6 +72,7 @@ const Create: NextPage = () => {
       fileData,
       fileName,
       fileId,
+      youtubeData,
     };
     if (context.title && context.content) {
       await addDoc(collection(dbService, "notice"), context);
@@ -114,6 +125,14 @@ const Create: NextPage = () => {
           </li>
           <li key="input3">
             pdf: <input type="file" accept=".pdf" onChange={uploadFile} />
+          </li>
+          <li key="input4">
+            유튜브url:
+            <input
+              type="text"
+              value={youtubeUrl}
+              onChange={onChangeYoutubeUrl}
+            />
           </li>
         </ul>
         {!loading ? <button>작성하기</button> : "업로드중..."}
