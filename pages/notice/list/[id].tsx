@@ -91,7 +91,7 @@ const PostDetail: NextPage = () => {
       <h4>
         첨부파일:
         {postData?.fileData ? (
-          <a href={postData.fileData} target="_blanc">
+          <a href={postData.fileData} target="_blank">
             {postData.fileName}
           </a>
         ) : (
