@@ -1,6 +1,6 @@
 import { NextPage } from "next";
 import { PostData } from ".";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import {
   getDoc,
   doc,
@@ -16,26 +16,22 @@ const PostViewer = dynamic(() => import("../../../components/Viewer"), {
   ssr: false,
 });
 
-const PostDetail: NextPage = () => {
-  const [postData, setPostData] = useState<PostData>();
+const PostDetail: NextPage<PostData> = (props) => {
   const router = useRouter();
 
   const getPost = async () => {
-    const data = await getDoc(doc(dbService, "free", `${router.query.id}`));
-    if (!data.data()) {
+    if (!props) {
       router.push("/post/list");
       return;
     }
     await updateDoc(doc(dbService, "free", `${router.query.id}`), {
       view: increment(1),
     });
-    const dataObj = { ...data.data(), id: router.query.id } as PostData;
-    setPostData(dataObj);
   };
 
   const deletePost = async () => {
     if (!sessionStorage.getItem("admin")) {
-      if (prompt("비밀번호를 입력해주세요") !== postData?.password) {
+      if (prompt("비밀번호를 입력해주세요") !== props.password) {
         alert("비밀번호가 다릅니다.");
         return;
       }
@@ -50,7 +46,7 @@ const PostDetail: NextPage = () => {
   };
 
   const redirectUpdate = async () => {
-    if (prompt("비밀번호를 입력해주세요") !== postData?.password) {
+    if (prompt("비밀번호를 입력해주세요") !== props.password) {
       alert("비밀번호가 다릅니다.");
       return;
     }
@@ -58,9 +54,9 @@ const PostDetail: NextPage = () => {
       {
         pathname: "/post/update",
         query: {
-          title: postData?.title,
-          content: postData?.content,
-          id: postData?.id,
+          title: props.title,
+          content: props.content,
+          id: router.query.id,
         },
       },
       "post/update"
@@ -73,10 +69,10 @@ const PostDetail: NextPage = () => {
 
   return (
     <div>
-      <h1>{postData?.title}</h1>
-      <h4>작성일: {postData && `${postData.createdAt}`.slice(0, 6)}</h4>
-      <h4>조회수: {postData ? postData.view + 1 : 0}</h4>
-      <div>{postData && <PostViewer content={postData?.content} />}</div>
+      <h1>{props.title}</h1>
+      <h4>작성일: {props && `${props.createdAt}`.slice(0, 6)}</h4>
+      <h4>조회수: {props ? props.view + 1 : 0}</h4>
+      <div>{props && <PostViewer content={props.content} />}</div>
       <button type="button" onClick={deletePost}>
         삭제하기
       </button>
@@ -88,3 +84,8 @@ const PostDetail: NextPage = () => {
 };
 
 export default PostDetail;
+
+export const getServerSideProps = async ({ params }: { params: PostData }) => {
+  const data = await getDoc(doc(dbService, "free", `${params.id}`));
+  return { props: data.data() };
+};
