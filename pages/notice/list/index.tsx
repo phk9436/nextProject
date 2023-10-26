@@ -25,7 +25,11 @@ export interface PostData {
   view: number;
 }
 
-const PostList: NextPage = () => {
+interface PageProps {
+  dataList: PostData[];
+}
+
+const PostList: NextPage<PageProps> = ({ dataList }) => {
   const [postList, setPostList] = useState<PostData[]>([]);
   const [totalNum, setTotalNum] = useState(0);
   const [totalPageNum, setTotalPageNum] = useState(0);
@@ -38,13 +42,7 @@ const PostList: NextPage = () => {
   const getPosts = async () => {
     setPostList([]);
     let queryList;
-    if (!isPrev && !isNext) {
-      queryList = query(
-        collection(dbService, "notice"),
-        limit(10),
-        orderBy("createdAt")
-      );
-    } else if (isNext) {
+    if (isNext) {
       queryList = query(
         collection(dbService, "notice"),
         limit(10),
@@ -76,11 +74,30 @@ const PostList: NextPage = () => {
     setTotalPageNum(Math.ceil(total.data()?.total / 10));
   };
 
-  const getNextPage = () => {
+  const setPropsData = async () => {
+    setPostList(dataList);
+    const total = await getDoc(doc(dbService, "meta", "noticeCount"));
+    setTotalNum(total.data()?.total);
+    setTotalPageNum(Math.ceil(total.data()?.total / 10));
+  };
+
+  const getNextPage = async () => {
     if (currentPageNum < totalPageNum) {
       setIsNext(true);
-      setIsRefetch((state) => !state);
+      lastData && setIsRefetch((state) => !state);
       setCurrentPageNum((state) => state + 1);
+
+      if (!lastData) {
+        //최초 다음페이지 호출 시 lastData세팅
+        const queryList = query(
+          collection(dbService, "notice"),
+          limit(10),
+          orderBy("createdAt")
+        );
+        const data = await getDocs(queryList);
+        setLastData(data.docs.at(-1));
+        setIsRefetch((state) => !state);
+      }
     }
   };
 
@@ -93,7 +110,7 @@ const PostList: NextPage = () => {
   };
 
   useEffect(() => {
-    getPosts();
+    isNext || isPrev ? getPosts() : setPropsData();
   }, [isRefetch]);
 
   return (
@@ -125,3 +142,18 @@ const PostList: NextPage = () => {
 };
 
 export default PostList;
+
+export const getServerSideProps = async () => {
+  const queryList = query(
+    collection(dbService, "notice"),
+    limit(10),
+    orderBy("createdAt")
+  );
+  const data = await getDocs(queryList);
+  const dataList: PostData[] = [];
+  data.forEach((docs) => {
+    const postData = { ...docs.data(), id: docs.id } as PostData;
+    dataList.push(postData);
+  });
+  return { props: { dataList } };
+};
