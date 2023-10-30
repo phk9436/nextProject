@@ -1,6 +1,6 @@
-import { NextPage } from "next";
+import { GetServerSideProps, NextPage } from "next";
 import { PostData } from ".";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import {
   getDoc,
   doc,
@@ -24,21 +24,17 @@ const PostViewer = dynamic(() => import("../../../components/Viewer"), {
   ssr: false,
 });
 
-const PostDetail: NextPage = () => {
-  const [postData, setPostData] = useState<NoticeData>();
+const PostDetail: NextPage<NoticeData> = (props) => {
   const router = useRouter();
 
   const getPost = async () => {
-    const data = await getDoc(doc(dbService, "notice", `${router.query.id}`));
-    if (!data.data()) {
+    if (!props) {
       router.push("/notice/list");
       return;
     }
     await updateDoc(doc(dbService, "notice", `${router.query.id}`), {
       view: increment(1),
     });
-    const dataObj = { ...data.data(), id: router.query.id } as NoticeData;
-    setPostData(dataObj);
   };
 
   const deletePost = async () => {
@@ -46,9 +42,10 @@ const PostDetail: NextPage = () => {
       alert("어드민이 아닙니다");
       return;
     }
-
-    const fileRef = ref(storageService, `notice/${postData?.fileId}`);
-    await deleteObject(fileRef);
+    if (props.fileId) {
+      const fileRef = ref(storageService, `notice/${props.fileId}`);
+      await deleteObject(fileRef);
+    }
 
     await deleteDoc(doc(dbService, "notice", `${router.query.id}`));
     await updateDoc(doc(dbService, "meta", "noticeCount"), {
@@ -67,12 +64,12 @@ const PostDetail: NextPage = () => {
       {
         pathname: "/notice/update",
         query: {
-          title: postData?.title,
-          content: postData?.content,
-          id: postData?.id,
-          fileName: postData?.fileName,
-          fileId: postData?.fileId,
-          youtubeData: postData?.youtubeData,
+          title: props.title,
+          content: props.content,
+          id: router.query.id,
+          fileName: props.fileName,
+          fileId: props.fileId,
+          youtubeData: props.youtubeData,
         },
       },
       "notice/update"
@@ -85,25 +82,25 @@ const PostDetail: NextPage = () => {
 
   return (
     <div>
-      <h1>{postData?.title}</h1>
-      <h4>작성일: {postData && `${postData.createdAt}`.slice(0, 6)}</h4>
-      <h4>조회수: {postData ? postData.view + 1 : 0}</h4>
+      <h1>{props.title}</h1>
+      <h4>작성일: {props && `${props.createdAt}`.slice(0, 6)}</h4>
+      <h4>조회수: {props ? props.view + 1 : 0}</h4>
       <h4>
         첨부파일:
-        {postData?.fileData ? (
-          <a href={postData.fileData} target="_blank">
-            {postData.fileName}
+        {props?.fileData ? (
+          <a href={props.fileData} target="_blanc">
+            {props.fileName}
           </a>
         ) : (
           "파일이 없습니다"
         )}
       </h4>
-      {postData?.youtubeData && (
+      {props?.youtubeData && (
         <div style={{ width: "500px", height: "300px" }}>
           <iframe
             width="100%"
             height="100%"
-            src={postData.youtubeData}
+            src={props.youtubeData}
             title="YouTube video player"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -112,7 +109,7 @@ const PostDetail: NextPage = () => {
         </div>
       )}
 
-      <div>{postData && <PostViewer content={postData.content} />}</div>
+      <div>{props && <PostViewer content={props.content} />}</div>
       <button type="button" onClick={deletePost}>
         삭제하기
       </button>
@@ -124,3 +121,12 @@ const PostDetail: NextPage = () => {
 };
 
 export default PostDetail;
+
+export const getServerSideProps = async ({
+  params,
+}: {
+  params: NoticeData;
+}) => {
+  const data = await getDoc(doc(dbService, "notice", `${params?.id}`));
+  return { props: data.data() };
+};
