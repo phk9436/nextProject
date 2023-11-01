@@ -72,7 +72,7 @@ const PostDetail: NextPage<PostData> = (props) => {
       <h1>{props.title}</h1>
       <h4>작성일: {props && `${props.createdAt}`.slice(0, 6)}</h4>
       <h4>조회수: {props ? props.view + 1 : 0}</h4>
-      <div>{props && <PostViewer content={props.content} />}</div>
+      <div><PostViewer content={props.content} /></div>
       <button type="button" onClick={deletePost}>
         삭제하기
       </button>
