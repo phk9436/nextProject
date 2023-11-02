@@ -109,7 +109,7 @@ const PostDetail: NextPage<NoticeData> = (props) => {
         </div>
       )}
 
-      <div>{props && <PostViewer content={props.content} />}</div>
+      <div><PostViewer content={props.content} /></div>
       <button type="button" onClick={deletePost}>
         삭제하기
       </button>
